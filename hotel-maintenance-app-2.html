@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Maintenance Manager</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #f8f9ff;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --accent-urgent: #ff4757;
+            --accent-todo: #ffa502;
+            --accent-done: #26de81;
+            --accent-other: #a29bfe;
+            --text-primary: #2d3436;
+            --text-secondary: #636e72;
+            --border-color: #dfe6e9;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #root {
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--bg-primary);
+            position: relative;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.5rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .app-header .app-title,
+        .app-header .back-button {
+            color: white;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logout-button {
+            padding: 0.375rem 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .logout-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .role-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+        }
+
+        .role-badge.manager {
+            background: rgba(255, 255, 255, 0.95);
+            color: #667eea;
+            border: none;
+        }
+
+        .back-button {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-2px);
+        }
+
+        /* Role Selector */
+        .role-selector {
+            padding: 2rem 1.25rem;
+            text-align: center;
+        }
+
+        .role-selector h2 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .role-selector p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .role-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .role-select-btn {
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .role-select-btn:hover {
+            transform: translateY(-2px);
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+        }
+
+        .role-select-btn.manager {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            padding: 1.5rem 1.25rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .category-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .category-card.urgent::before {
+            background: var(--accent-urgent);
+        }
+
+        .category-card.todo::before {
+            background: var(--accent-todo);
+        }
+
+        .category-card.done::before {
+            background: var(--accent-done);
+        }
+
+        .category-card.other::before {
+            background: var(--accent-other);
+        }
+
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px var(--shadow);
+            border-color: currentColor;
+        }
+
+        .category-card.urgent:hover {
+            border-color: var(--accent-urgent);
+        }
+
+        .category-card.todo:hover {
+            border-color: var(--accent-todo);
+        }
+
+        .category-card.done:hover {
+            border-color: var(--accent-done);
+        }
+
+        .category-card.other:hover {
+            border-color: var(--accent-other);
+        }
+
+        .category-card:hover::before {
+            width: 8px;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .category-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .category-card.urgent .category-icon {
+            background: rgba(255, 71, 87, 0.15);
+        }
+
+        .category-card.todo .category-icon {
+            background: rgba(255, 165, 2, 0.15);
+        }
+
+        .category-card.done .category-icon {
+            background: rgba(38, 222, 129, 0.15);
+        }
+
+        .category-card.other .category-icon {
+            background: rgba(162, 155, 254, 0.15);
+        }
+
+        .category-count {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .category-card.urgent .category-count {
+            color: var(--accent-urgent);
+        }
+
+        .category-card.todo .category-count {
+            color: var(--accent-todo);
+        }
+
+        .category-card.done .category-count {
+            color: var(--accent-done);
+        }
+
+        .category-card.other .category-count {
+            color: var(--accent-other);
+        }
+
+        .category-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Add Job Button */
+        .add-job-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 1.25rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 50;
+        }
+
+        .add-job-button:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Floor List */
+        .floor-list {
+            padding: 1.5rem 1.25rem;
+        }
+
+        .floor-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .floor-header {
+            background: var(--bg-card);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .floor-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .floor-count {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .room-list {
+            display: grid;
+            gap: 0.75rem;
+            padding-left: 1rem;
+        }
+
+        .room-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .room-card:hover {
+            background: var(--bg-card);
+            transform: translateX(4px);
+            border-color: #667eea;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .room-number {
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .job-count-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .room-notes {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Job List */
+        .job-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .job-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .job-card:hover {
+            background: var(--bg-secondary);
+            transform: translateX(4px);
+            border-color: #667eea;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.625rem;
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-left: 0.5rem;
+        }
+
+        .status-badge.urgent {
+            background: var(--accent-urgent);
+            color: white;
+        }
+
+        .status-badge.todo {
+            background: var(--accent-todo);
+            color: white;
+        }
+
+        .status-badge.done {
+            background: var(--accent-done);
+            color: white;
+        }
+
+        .status-badge.other {
+            background: var(--accent-other);
+            color: white;
+        }
+
+        .job-meta {
+            display: flex;
+            gap: 0.75rem;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .job-photo-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* Job Detail */
+        .job-detail {
+            padding: 1.5rem 1.25rem;
+        }
+
+        .detail-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .detail-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .detail-room {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .detail-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-photo {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .photo-upload-section {
+            margin-top: 1rem;
+        }
+
+        .photo-upload-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .photo-upload-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .photo-upload-btn {
+            padding: 0.875rem;
+            background: var(--bg-secondary);
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            text-align: center;
+        }
+
+        .photo-upload-btn:hover {
+            background: var(--bg-card);
+            border-color: #667eea;
+        }
+
+        .detail-meta {
+            display: grid;
+            gap: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .detail-actions {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 1rem;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .action-btn.primary {
+            background: var(--accent-done);
+            color: var(--bg-primary);
+        }
+
+        .action-btn.secondary {
+            background: var(--accent-todo);
+            color: var(--bg-primary);
+        }
+
+        .action-btn.danger {
+            background: var(--accent-urgent);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px var(--shadow);
+        }
+
+        /* Form */
+        .form-container {
+            padding: 1.5rem 1.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.25rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-message {
+            color: var(--text-secondary);
+        }
+
+        /* Urgent Jobs List */
+        .urgent-list {
+            padding: 1.5rem 1.25rem;
+        }
+
+        .urgent-jobs {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .urgent-job-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-left: 4px solid var(--accent-urgent);
+            border-radius: 12px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .urgent-job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px var(--shadow);
+            border-color: var(--accent-urgent);
+        }
+
+        /* Hidden file input */
+        .hidden-file-input {
+            display: none;
+        }
+
+        /* Loading spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (min-width: 480px) {
+            .app-container {
+                border-left: 1px solid var(--border-color);
+                border-right: 1px solid var(--border-color);
+            }
+        }
+
+        /* Photo Modal */
+        .photo-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            cursor: zoom-out;
+        }
+
+        .photo-modal img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .photo-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .photo-modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .detail-photo {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            cursor: zoom-in;
+            transition: all 0.2s ease;
+        }
+
+        .detail-photo:hover {
+            opacity: 0.9;
+        }
+
+        /* Edit button */
+        .edit-button {
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            color: var(--text-primary);
+        }
+
+        .edit-button:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px var(--shadow);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Sample Data
+        const initialRooms = [
+            { id: 1, room_number: "B01", notes: "Storage Room", floor: "Basement" },
+            { id: 2, room_number: "B02", notes: "Laundry", floor: "Basement" },
+            { id: 3, room_number: "101", notes: "Double Room", floor: "First Floor" },
+            { id: 4, room_number: "102", notes: "Single Room", floor: "First Floor" },
+            { id: 5, room_number: "201", notes: "Twin Room", floor: "Second Floor" },
+            { id: 6, room_number: "202", notes: "Family Room", floor: "Second Floor" },
+            { id: 7, room_number: "301", notes: "Single Room", floor: "Third Floor" },
+            { id: 8, room_number: "302", notes: "Double Room", floor: "Third Floor" },
+            { id: 9, room_number: "401", notes: "Suite", floor: "Fourth Floor" },
+            { id: 10, room_number: "402", notes: "Deluxe Room", floor: "Fourth Floor" },
+        ];
+
+        const initialJobs = [
+            {
+                id: 1,
+                room_id: 3,
+                title: "Shower Leak",
+                description: "Water dripping from shower head constantly. Needs immediate attention.",
+                photo: null,
+                status: "Urgent",
+                original_status: "Urgent",
+                created_at: new Date('2025-11-28T08:00:00').toISOString(),
+                updated_at: new Date('2025-11-28T08:00:00').toISOString(),
+            },
+            {
+                id: 2,
+                room_id: 6,
+                title: "AC Not Working",
+                description: "Air conditioning unit not turning on. Room is getting warm.",
+                photo: null,
+                status: "Urgent",
+                original_status: "Urgent",
+                created_at: new Date('2025-11-28T09:30:00').toISOString(),
+                updated_at: new Date('2025-11-28T09:30:00').toISOString(),
+            },
+            {
+                id: 3,
+                room_id: 4,
+                title: "Lamp Flickering",
+                description: "Bedside lamp flickering intermittently.",
+                photo: null,
+                status: "To Do",
+                original_status: "To Do",
+                created_at: new Date('2025-11-27T14:00:00').toISOString(),
+                updated_at: new Date('2025-11-27T14:00:00').toISOString(),
+            },
+            {
+                id: 4,
+                room_id: 5,
+                title: "Loose Bathroom Tile",
+                description: "Tile near sink is coming loose and needs re-grouting.",
+                photo: null,
+                status: "To Do",
+                original_status: "To Do",
+                created_at: new Date('2025-11-27T11:00:00').toISOString(),
+                updated_at: new Date('2025-11-27T11:00:00').toISOString(),
+            },
+            {
+                id: 5,
+                room_id: 7,
+                title: "Window Handle Loose",
+                description: "Window handle is wobbly and difficult to operate.",
+                photo: null,
+                status: "To Do",
+                original_status: "To Do",
+                created_at: new Date('2025-11-26T16:00:00').toISOString(),
+                updated_at: new Date('2025-11-26T16:00:00').toISOString(),
+            },
+            {
+                id: 6,
+                room_id: 8,
+                title: "Curtain Rail Fixed",
+                description: "Repaired and reinforced curtain rail bracket.",
+                photo: null,
+                status: "Done",
+                original_status: "To Do",
+                created_at: new Date('2025-11-25T10:00:00').toISOString(),
+                updated_at: new Date('2025-11-28T15:00:00').toISOString(),
+            },
+        ];
+
+        // Storage helpers
+        const storage = {
+            get: (key, defaultValue) => {
+                try {
+                    const item = localStorage.getItem(key);
+                    return item ? JSON.parse(item) : defaultValue;
+                } catch {
+                    return defaultValue;
+                }
+            },
+            set: (key, value) => {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (e) {
+                    console.error('Storage error:', e);
+                }
+            }
+        };
+
+        // Main App Component
+        function HotelMaintenanceApp() {
+            const [currentView, setCurrentView] = useState('role-select');
+            const [userRole, setUserRole] = useState(null);
+            const [rooms, setRooms] = useState(() => storage.get('rooms', initialRooms));
+            const [jobs, setJobs] = useState(() => storage.get('jobs', initialJobs));
+            const [selectedCategory, setSelectedCategory] = useState(null);
+            const [selectedJob, setSelectedJob] = useState(null);
+            const [selectedFloor, setSelectedFloor] = useState(null);
+            const [selectedRoom, setSelectedRoom] = useState(null);
+            const [isEditing, setIsEditing] = useState(false);
+            const [enlargedPhoto, setEnlargedPhoto] = useState(null);
+
+            useEffect(() => {
+                storage.set('rooms', rooms);
+            }, [rooms]);
+
+            useEffect(() => {
+                storage.set('jobs', jobs);
+            }, [jobs]);
+
+            const selectRole = (role) => {
+                setUserRole(role);
+                setCurrentView('dashboard');
+            };
+
+            const logout = () => {
+                setUserRole(null);
+                setCurrentView('role-select');
+                setSelectedCategory(null);
+                setSelectedJob(null);
+                setSelectedFloor(null);
+                setSelectedRoom(null);
+                setIsEditing(false);
+            };
+
+            const goToDashboard = () => {
+                setCurrentView('dashboard');
+                setSelectedCategory(null);
+                setSelectedJob(null);
+                setSelectedFloor(null);
+                setSelectedRoom(null);
+            };
+
+            const viewCategory = (category) => {
+                setSelectedCategory(category);
+                if (category === 'Urgent') {
+                    setCurrentView('urgent-list');
+                } else {
+                    setCurrentView('floor-list');
+                }
+            };
+
+            const viewFloorRooms = (floor) => {
+                setSelectedFloor(floor);
+                setCurrentView('room-list');
+            };
+
+            const viewRoomJobs = (room) => {
+                setSelectedRoom(room);
+                setCurrentView('job-list');
+            };
+
+            const viewJobDetail = (job) => {
+                setSelectedJob(job);
+                setCurrentView('job-detail');
+                setIsEditing(false);
+            };
+
+            const editJob = () => {
+                setIsEditing(true);
+                setCurrentView('edit-job');
+            };
+
+            const addNewJob = () => {
+                setCurrentView('add-job');
+            };
+
+            const createJob = (jobData) => {
+                const newJob = {
+                    ...jobData,
+                    id: Math.max(0, ...jobs.map(j => j.id)) + 1,
+                    original_status: jobData.status,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                };
+                setJobs([...jobs, newJob]);
+                goToDashboard();
+            };
+
+            const updateJobData = (jobId, updates) => {
+                setJobs(jobs.map(job => 
+                    job.id === jobId 
+                        ? { ...job, ...updates, updated_at: new Date().toISOString() }
+                        : job
+                ));
+                const updatedJob = jobs.find(j => j.id === jobId);
+                if (updatedJob) {
+                    setSelectedJob({ ...updatedJob, ...updates, updated_at: new Date().toISOString() });
+                }
+                setIsEditing(false);
+                setCurrentView('job-detail');
+            };
+
+            const updateJob = (jobId, updates) => {
+                setJobs(jobs.map(job => {
+                    if (job.id === jobId) {
+                        const newUpdates = { ...updates, updated_at: new Date().toISOString() };
+                        // Track original status when marking as done
+                        if (updates.status === 'Done' && job.status !== 'Done') {
+                            newUpdates.original_status = job.status;
+                        }
+                        return { ...job, ...newUpdates };
+                    }
+                    return job;
+                }));
+                if (updates.status) {
+                    const job = jobs.find(j => j.id === jobId);
+                    const newUpdates = { ...updates, updated_at: new Date().toISOString() };
+                    if (updates.status === 'Done' && job.status !== 'Done') {
+                        newUpdates.original_status = job.status;
+                    }
+                    setSelectedJob({ ...selectedJob, ...newUpdates });
+                }
+            };
+
+            const deleteJob = (jobId) => {
+                setJobs(jobs.filter(job => job.id !== jobId));
+                goToDashboard();
+            };
+
+            const getJobsForCategory = (status) => {
+                return jobs.filter(job => job.status === status);
+            };
+
+            const getJobsWithRoomInfo = (jobsList) => {
+                return jobsList.map(job => ({
+                    ...job,
+                    room: rooms.find(r => r.id === job.room_id)
+                }));
+            };
+
+            const getRoomById = (roomId) => {
+                return rooms.find(r => r.id === roomId);
+            };
+
+            return (
+                <div className="app-container">
+                    {enlargedPhoto && (
+                        <div className="photo-modal" onClick={() => setEnlargedPhoto(null)}>
+                            <button className="photo-modal-close" onClick={() => setEnlargedPhoto(null)}>×</button>
+                            <img src={enlargedPhoto} alt="Enlarged" />
+                        </div>
+                    )}
+
+                    {currentView === 'role-select' && (
+                        <RoleSelector onSelectRole={selectRole} />
+                    )}
+                    
+                    {currentView === 'dashboard' && (
+                        <Dashboard
+                            role={userRole}
+                            jobs={jobs}
+                            onViewCategory={viewCategory}
+                            onAddJob={addNewJob}
+                            onLogout={logout}
+                        />
+                    )}
+
+                    {currentView === 'urgent-list' && (
+                        <UrgentJobsList
+                            jobs={getJobsWithRoomInfo(getJobsForCategory('Urgent'))}
+                            onBack={goToDashboard}
+                            onViewJob={viewJobDetail}
+                            onLogout={logout}
+                        />
+                    )}
+
+                    {currentView === 'floor-list' && (
+                        <FloorList
+                            category={selectedCategory}
+                            jobs={jobs}
+                            rooms={rooms}
+                            onBack={goToDashboard}
+                            onViewFloor={viewFloorRooms}
+                            onLogout={logout}
+                        />
+                    )}
+
+                    {currentView === 'room-list' && (
+                        <RoomList
+                            floor={selectedFloor}
+                            category={selectedCategory}
+                            jobs={jobs}
+                            rooms={rooms}
+                            onBack={() => setCurrentView('floor-list')}
+                            onViewRoom={viewRoomJobs}
+                            onLogout={logout}
+                        />
+                    )}
+
+                    {currentView === 'job-list' && (
+                        <JobList
+                            room={selectedRoom}
+                            category={selectedCategory}
+                            jobs={jobs}
+                            onBack={() => setCurrentView('room-list')}
+                            onViewJob={viewJobDetail}
+                            onLogout={logout}
+                        />
+                    )}
+
+                    {currentView === 'job-detail' && (
+                        <JobDetail
+                            job={selectedJob}
+                            room={getRoomById(selectedJob.room_id)}
+                            role={userRole}
+                            onBack={() => {
+                                if (selectedCategory === 'Urgent') {
+                                    setCurrentView('urgent-list');
+                                } else {
+                                    setCurrentView('job-list');
+                                }
+                            }}
+                            onUpdateJob={updateJob}
+                            onDeleteJob={deleteJob}
+                            onEditJob={editJob}
+                            onEnlargePhoto={setEnlargedPhoto}
+                            onLogout={logout}
+                        />
+                    )}
+
+                    {currentView === 'add-job' && (
+                        <AddJobForm
+                            rooms={rooms}
+                            onBack={goToDashboard}
+                            onSubmit={createJob}
+                            onLogout={logout}
+                        />
+                    )}
+
+                    {currentView === 'edit-job' && (
+                        <EditJobForm
+                            job={selectedJob}
+                            rooms={rooms}
+                            onBack={() => setCurrentView('job-detail')}
+                            onSubmit={updateJobData}
+                            onLogout={logout}
+                        />
+                    )}
+                </div>
+            );
+        }
+
+        function RoleSelector({ onSelectRole }) {
+            return (
+                <div className="role-selector fade-in">
+                    <h2>Select Your Role</h2>
+                    <p>Choose your role to access the maintenance system</p>
+                    <div className="role-buttons">
+                        <button className="role-select-btn manager" onClick={() => onSelectRole('manager')}>
+                            👨‍💼 Manager
+                        </button>
+                        <button className="role-select-btn" onClick={() => onSelectRole('handyman')}>
+                            🔧 Handyman
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        function Dashboard({ role, jobs, onViewCategory, onAddJob, onLogout }) {
+            const urgentCount = jobs.filter(j => j.status === 'Urgent').length;
+            const todoCount = jobs.filter(j => j.status === 'To Do').length;
+            const doneCount = jobs.filter(j => j.status === 'Done').length;
+            const otherCount = jobs.filter(j => j.status === 'Other').length;
+
+            return (
+                <>
+                    <div className="app-header">
+                        <div className="header-content">
+                            <h1 className="app-title">Maintenance</h1>
+                            <div className="header-right">
+                                <span className={`role-badge ${role}`}>
+                                    {role === 'manager' ? '👨‍💼 Manager' : '🔧 Handyman'}
+                                </span>
+                                <button className="logout-button" onClick={onLogout}>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="dashboard fade-in">
+                        <div className="dashboard-grid">
+                            <div className="category-card urgent" onClick={() => onViewCategory('Urgent')}>
+                                <div className="category-header">
+                                    <div className="category-title">
+                                        <div className="category-icon">🔥</div>
+                                        Urgent Jobs
+                                    </div>
+                                </div>
+                                <div className="category-count">{urgentCount}</div>
+                                <div className="category-subtitle">Requires immediate attention</div>
+                            </div>
+
+                            <div className="category-card todo" onClick={() => onViewCategory('To Do')}>
+                                <div className="category-header">
+                                    <div className="category-title">
+                                        <div className="category-icon">📋</div>
+                                        To Do Jobs
+                                    </div>
+                                </div>
+                                <div className="category-count">{todoCount}</div>
+                                <div className="category-subtitle">Scheduled maintenance tasks</div>
+                            </div>
+
+                            <div className="category-card done" onClick={() => onViewCategory('Done')}>
+                                <div className="category-header">
+                                    <div className="category-title">
+                                        <div className="category-icon">✅</div>
+                                        Done Jobs
+                                    </div>
+                                </div>
+                                <div className="category-count">{doneCount}</div>
+                                <div className="category-subtitle">Completed tasks</div>
+                            </div>
+
+                            <div className="category-card other" onClick={() => onViewCategory('Other')}>
+                                <div className="category-header">
+                                    <div className="category-title">
+                                        <div className="category-icon">🔧</div>
+                                        Other Jobs
+                                    </div>
+                                </div>
+                                <div className="category-count">{otherCount}</div>
+                                <div className="category-subtitle">Non-room maintenance tasks</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {role === 'manager' && (
+                        <button className="add-job-button" onClick={onAddJob}>
+                            +
+                        </button>
+                    )}
+                </>
+            );
+        }
+
+        function UrgentJobsList({ jobs, onBack, onViewJob, onLogout }) {
+            return (
+                <>
+                    <div className="app-header">
+                        <button className="back-button" onClick={onBack}>
+                            ← Back
+                        </button>
+                        <div className="header-content" style={{ marginBottom: 0 }}>
+                            <h1 className="app-title">Urgent Jobs</h1>
+                            <button className="logout-button" onClick={onLogout}>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="urgent-list fade-in">
+                        {jobs.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-icon">🎉</div>
+                                <div className="empty-title">No Urgent Jobs</div>
+                                <div className="empty-message">All critical issues have been addressed</div>
+                            </div>
+                        ) : (
+                            <div className="urgent-jobs">
+                                {jobs.map(job => (
+                                    <div key={job.id} className="urgent-job-card" onClick={() => onViewJob(job)}>
+                                        <div className="job-header">
+                                            <div className="job-title">{job.title}</div>
+                                            <span className="status-badge urgent">Urgent</span>
+                                        </div>
+                                        <div className="room-number">Room {job.room?.room_number}</div>
+                                        <div className="detail-description">{job.description}</div>
+                                        <div className="job-meta">
+                                            <span>📅 {new Date(job.created_at).toLocaleDateString()}</span>
+                                            {job.photo && <span className="job-photo-indicator">📷 Photo</span>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </>
+            );
+        }
+
+        function FloorList({ category, jobs, rooms, onBack, onViewFloor, onLogout }) {
+            const floors = ['Basement', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'];
+            
+            const getFloorJobCount = (floor) => {
+                const floorRooms = rooms.filter(r => r.floor === floor);
+                const roomIds = floorRooms.map(r => r.id);
+                return jobs.filter(j => j.status === category && roomIds.includes(j.room_id)).length;
+            };
+
+            return (
+                <>
+                    <div className="app-header">
+                        <button className="back-button" onClick={onBack}>
+                            ← Back
+                        </button>
+                        <div className="header-content" style={{ marginBottom: 0 }}>
+                            <h1 className="app-title">{category} Jobs by Floor</h1>
+                            <button className="logout-button" onClick={onLogout}>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="floor-list fade-in">
+                        {floors.map(floor => {
+                            const jobCount = getFloorJobCount(floor);
+                            return (
+                                <div key={floor} className="floor-section" onClick={() => onViewFloor(floor)}>
+                                    <div className="floor-header" style={{ cursor: 'pointer' }}>
+                                        <div className="floor-title">
+                                            🏢 {floor}
+                                            <span className="floor-count">({jobCount} {jobCount === 1 ? 'job' : 'jobs'})</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </>
+            );
+        }
+
+        function RoomList({ floor, category, jobs, rooms, onBack, onViewRoom, onLogout }) {
+            const floorRooms = rooms.filter(r => r.floor === floor);
+            
+            const getRoomJobCount = (roomId) => {
+                return jobs.filter(j => j.status === category && j.room_id === roomId).length;
+            };
+
+            return (
+                <>
+                    <div className="app-header">
+                        <button className="back-button" onClick={onBack}>
+                            ← Back
+                        </button>
+                        <div className="header-content" style={{ marginBottom: 0 }}>
+                            <h1 className="app-title">{floor}</h1>
+                            <button className="logout-button" onClick={onLogout}>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="floor-list fade-in">
+                        <div className="room-list">
+                            {floorRooms.map(room => {
+                                const jobCount = getRoomJobCount(room.id);
+                                if (jobCount === 0) return null;
+                                
+                                return (
+                                    <div key={room.id} className="room-card" onClick={() => onViewRoom(room)}>
+                                        <div className="room-header">
+                                            <div className="room-number">Room {room.room_number}</div>
+                                            <span className="job-count-badge">{jobCount} {jobCount === 1 ? 'job' : 'jobs'}</span>
+                                        </div>
+                                        <div className="room-notes">{room.notes}</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </>
+            );
+        }
+
+        function JobList({ room, category, jobs, onBack, onViewJob, onLogout }) {
+            const roomJobs = jobs.filter(j => j.room_id === room.id && j.status === category);
+
+            return (
+                <>
+                    <div className="app-header">
+                        <button className="back-button" onClick={onBack}>
+                            ← Back
+                        </button>
+                        <div className="header-content" style={{ marginBottom: 0 }}>
+                            <h1 className="app-title">Room {room.room_number}</h1>
+                            <button className="logout-button" onClick={onLogout}>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="floor-list fade-in">
+                        {roomJobs.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-icon">📭</div>
+                                <div className="empty-title">No Jobs</div>
+                                <div className="empty-message">No {category.toLowerCase()} jobs for this room</div>
+                            </div>
+                        ) : (
+                            <div className="job-list">
+                                {roomJobs.map(job => (
+                                    <div key={job.id} className="job-card" onClick={() => onViewJob(job)}>
+                                        <div className="job-header">
+                                            <div className="job-title">{job.title}</div>
+                                            <span className={`status-badge ${job.status.toLowerCase().replace(' ', '')}`}>
+                                                {job.status}
+                                            </span>
+                                        </div>
+                                        <div className="detail-description">{job.description}</div>
+                                        <div className="job-meta">
+                                            <span>📅 {new Date(job.created_at).toLocaleDateString()}</span>
+                                            {job.photo && <span className="job-photo-indicator">📷 Photo</span>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </>
+            );
+        }
+
+        function JobDetail({ job, room, role, onBack, onUpdateJob, onDeleteJob, onEditJob, onEnlargePhoto, onLogout }) {
+            const fileInputRef = useRef(null);
+            const cameraInputRef = useRef(null);
+
+            const handleMarkAsDone = () => {
+                onUpdateJob(job.id, { status: 'Done' });
+            };
+
+            const handleReopenAsOriginal = () => {
+                const originalStatus = job.original_status || 'To Do';
+                onUpdateJob(job.id, { status: originalStatus });
+            };
+
+            const handleDelete = () => {
+                if (confirm('Are you sure you want to delete this job?')) {
+                    onDeleteJob(job.id);
+                }
+            };
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        onUpdateJob(job.id, { photo: event.target.result });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            return (
+                <>
+                    <div className="app-header">
+                        <button className="back-button" onClick={onBack}>
+                            ← Back
+                        </button>
+                        <button className="logout-button" onClick={onLogout}>
+                            Logout
+                        </button>
+                    </div>
+
+                    <div className="job-detail fade-in">
+                        <div className="detail-card">
+                            <div className="detail-header">
+                                <div className="detail-title">{job.title}</div>
+                                <span className={`status-badge ${job.status.toLowerCase().replace(' ', '')}`}>
+                                    {job.status}
+                                </span>
+                            </div>
+                            
+                            <div className="detail-room">Room {room?.room_number} - {room?.notes}</div>
+                            
+                            <div className="detail-description">{job.description}</div>
+                            
+                            {job.photo && (
+                                <img 
+                                    src={job.photo} 
+                                    alt="Job photo" 
+                                    className="detail-photo"
+                                    onClick={() => onEnlargePhoto(job.photo)}
+                                />
+                            )}
+
+                            <div className="photo-upload-section">
+                                <label className="photo-upload-label">
+                                    {job.photo ? 'Update Photo' : 'Add Photo'}
+                                </label>
+                                <div className="photo-upload-buttons">
+                                    <button 
+                                        className="photo-upload-btn"
+                                        onClick={() => fileInputRef.current.click()}
+                                    >
+                                        📁 Upload Photo
+                                    </button>
+                                    <button 
+                                        className="photo-upload-btn"
+                                        onClick={() => cameraInputRef.current.click()}
+                                    >
+                                        📷 Take Photo
+                                    </button>
+                                </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden-file-input"
+                                    onChange={handleFileUpload}
+                                />
+                                <input
+                                    ref={cameraInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    className="hidden-file-input"
+                                    onChange={handleFileUpload}
+                                />
+                            </div>
+                            
+                            <div className="detail-meta">
+                                <div>📅 Created: {new Date(job.created_at).toLocaleString()}</div>
+                                <div>🔄 Updated: {new Date(job.updated_at).toLocaleString()}</div>
+                            </div>
+                        </div>
+
+                        <div className="detail-actions">
+                            {role === 'manager' && (
+                                <button className="edit-button" onClick={onEditJob}>
+                                    ✏️ Edit Job
+                                </button>
+                            )}
+
+                            {job.status !== 'Done' && (
+                                <button className="action-btn primary" onClick={handleMarkAsDone}>
+                                    ✓ Mark as Done
+                                </button>
+                            )}
+                            
+                            {job.status === 'Done' && role === 'manager' && (
+                                <button className="action-btn secondary" onClick={handleReopenAsOriginal}>
+                                    ↺ Reopen as {job.original_status || 'To Do'}
+                                </button>
+                            )}
+                            
+                            {role === 'manager' && (
+                                <button className="action-btn danger" onClick={handleDelete}>
+                                    🗑 Delete Job
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </>
+            );
+        }
+
+        function AddJobForm({ rooms, onBack, onSubmit, onLogout }) {
+            const [formData, setFormData] = useState({
+                room_id: '',
+                title: '',
+                description: '',
+                status: 'To Do',
+                photo: null
+            });
+            const fileInputRef = useRef(null);
+            const cameraInputRef = useRef(null);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!formData.title || !formData.description) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                // For "Other" jobs, room_id is optional
+                if (formData.status !== 'Other' && !formData.room_id) {
+                    alert('Please select a room');
+                    return;
+                }
+                onSubmit(formData);
+            };
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        setFormData({ ...formData, photo: event.target.result });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            return (
+                <>
+                    <div className="app-header">
+                        <button className="back-button" onClick={onBack}>
+                            ← Cancel
+                        </button>
+                        <div className="header-content" style={{ marginBottom: 0 }}>
+                            <h1 className="app-title">Add New Job</h1>
+                            <button className="logout-button" onClick={onLogout}>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="form-container fade-in">
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label className="form-label">Priority *</label>
+                                <select 
+                                    className="form-select"
+                                    value={formData.status}
+                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                    required
+                                >
+                                    <option value="To Do">To Do</option>
+                                    <option value="Urgent">Urgent</option>
+                                    <option value="Other">Other (Non-room task)</option>
+                                </select>
+                            </div>
+
+                            {formData.status !== 'Other' && (
+                                <div className="form-group">
+                                    <label className="form-label">Room *</label>
+                                    <select 
+                                        className="form-select"
+                                        value={formData.room_id}
+                                        onChange={(e) => setFormData({ ...formData, room_id: parseInt(e.target.value) })}
+                                        required
+                                    >
+                                        <option value="">Select a room</option>
+                                        {rooms.map(room => (
+                                            <option key={room.id} value={room.id}>
+                                                Room {room.room_number} - {room.notes}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            <div className="form-group">
+                                <label className="form-label">Title *</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    placeholder="e.g., Broken window handle"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Description *</label>
+                                <textarea
+                                    className="form-textarea"
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    placeholder="Provide detailed description of the issue..."
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Photo (Optional)</label>
+                                {formData.photo && (
+                                    <img src={formData.photo} alt="Job photo" className="detail-photo" />
+                                )}
+                                <div className="photo-upload-buttons">
+                                    <button 
+                                        type="button"
+                                        className="photo-upload-btn"
+                                        onClick={() => fileInputRef.current.click()}
+                                    >
+                                        📁 Upload Photo
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        className="photo-upload-btn"
+                                        onClick={() => cameraInputRef.current.click()}
+                                    >
+                                        📷 Take Photo
+                                    </button>
+                                </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden-file-input"
+                                    onChange={handleFileUpload}
+                                />
+                                <input
+                                    ref={cameraInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    className="hidden-file-input"
+                                    onChange={handleFileUpload}
+                                />
+                            </div>
+
+                            <button type="submit" className="form-submit">
+                                Create Job
+                            </button>
+                        </form>
+                    </div>
+                </>
+            );
+        }
+
+        function EditJobForm({ job, rooms, onBack, onSubmit, onLogout }) {
+            const [formData, setFormData] = useState({
+                room_id: job.room_id || '',
+                title: job.title,
+                description: job.description,
+                status: job.status,
+                photo: job.photo
+            });
+            const fileInputRef = useRef(null);
+            const cameraInputRef = useRef(null);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!formData.title || !formData.description) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                // For "Other" jobs, room_id is optional
+                if (formData.status !== 'Other' && !formData.room_id) {
+                    alert('Please select a room');
+                    return;
+                }
+                onSubmit(job.id, formData);
+            };
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        setFormData({ ...formData, photo: event.target.result });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            return (
+                <>
+                    <div className="app-header">
+                        <button className="back-button" onClick={onBack}>
+                            ← Cancel
+                        </button>
+                        <div className="header-content" style={{ marginBottom: 0 }}>
+                            <h1 className="app-title">Edit Job</h1>
+                            <button className="logout-button" onClick={onLogout}>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="form-container fade-in">
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label className="form-label">Priority *</label>
+                                <select 
+                                    className="form-select"
+                                    value={formData.status}
+                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                    required
+                                >
+                                    <option value="To Do">To Do</option>
+                                    <option value="Urgent">Urgent</option>
+                                    <option value="Other">Other (Non-room task)</option>
+                                    <option value="Done">Done</option>
+                                </select>
+                            </div>
+
+                            {formData.status !== 'Other' && (
+                                <div className="form-group">
+                                    <label className="form-label">Room *</label>
+                                    <select 
+                                        className="form-select"
+                                        value={formData.room_id}
+                                        onChange={(e) => setFormData({ ...formData, room_id: parseInt(e.target.value) })}
+                                        required
+                                    >
+                                        <option value="">Select a room</option>
+                                        {rooms.map(room => (
+                                            <option key={room.id} value={room.id}>
+                                                Room {room.room_number} - {room.notes}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            <div className="form-group">
+                                <label className="form-label">Title *</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    placeholder="e.g., Broken window handle"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Description *</label>
+                                <textarea
+                                    className="form-textarea"
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    placeholder="Provide detailed description of the issue..."
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Photo (Optional)</label>
+                                {formData.photo && (
+                                    <img src={formData.photo} alt="Job photo" className="detail-photo" />
+                                )}
+                                <div className="photo-upload-buttons">
+                                    <button 
+                                        type="button"
+                                        className="photo-upload-btn"
+                                        onClick={() => fileInputRef.current.click()}
+                                    >
+                                        📁 Upload Photo
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        className="photo-upload-btn"
+                                        onClick={() => cameraInputRef.current.click()}
+                                    >
+                                        📷 Take Photo
+                                    </button>
+                                </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden-file-input"
+                                    onChange={handleFileUpload}
+                                />
+                                <input
+                                    ref={cameraInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    className="hidden-file-input"
+                                    onChange={handleFileUpload}
+                                />
+                            </div>
+
+                            <button type="submit" className="form-submit">
+                                Update Job
+                            </button>
+                        </form>
+                    </div>
+                </>
+            );
+        }
+
+        // Render App
+        ReactDOM.render(<HotelMaintenanceApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>

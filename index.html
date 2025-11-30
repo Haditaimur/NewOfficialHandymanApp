@@ -885,22 +885,57 @@
 
         // Sample Data
         const initialRooms = [
-            { id: 1, room_number: "B01", notes: "Storage Room", floor: "Basement" },
-            { id: 2, room_number: "B02", notes: "Laundry", floor: "Basement" },
-            { id: 3, room_number: "101", notes: "Double Room", floor: "First Floor" },
-            { id: 4, room_number: "102", notes: "Single Room", floor: "First Floor" },
-            { id: 5, room_number: "201", notes: "Twin Room", floor: "Second Floor" },
-            { id: 6, room_number: "202", notes: "Family Room", floor: "Second Floor" },
-            { id: 7, room_number: "301", notes: "Single Room", floor: "Third Floor" },
-            { id: 8, room_number: "302", notes: "Double Room", floor: "Third Floor" },
-            { id: 9, room_number: "401", notes: "Suite", floor: "Fourth Floor" },
-            { id: 10, room_number: "402", notes: "Deluxe Room", floor: "Fourth Floor" },
+            // Basement
+            { id: 1, room_number: "51", notes: "Storage Room", floor: "Basement" },
+            { id: 2, room_number: "52", notes: "Laundry", floor: "Basement" },
+            { id: 3, room_number: "53", notes: "Utility Room", floor: "Basement" },
+            { id: 4, room_number: "54", notes: "Maintenance Room", floor: "Basement" },
+            // Ground Floor
+            { id: 5, room_number: "1", notes: "Single Room", floor: "Ground Floor" },
+            { id: 6, room_number: "2", notes: "Double Room", floor: "Ground Floor" },
+            { id: 7, room_number: "3", notes: "Twin Room", floor: "Ground Floor" },
+            { id: 8, room_number: "4", notes: "Family Room", floor: "Ground Floor" },
+            { id: 9, room_number: "5", notes: "Single Room", floor: "Ground Floor" },
+            { id: 10, room_number: "6", notes: "Double Room", floor: "Ground Floor" },
+            { id: 11, room_number: "7", notes: "Twin Room", floor: "Ground Floor" },
+            // First Floor
+            { id: 12, room_number: "8", notes: "Single Room", floor: "First Floor" },
+            { id: 13, room_number: "2b", notes: "Double Room", floor: "First Floor" },
+            { id: 14, room_number: "11", notes: "Twin Room", floor: "First Floor" },
+            { id: 15, room_number: "12", notes: "Family Room", floor: "First Floor" },
+            { id: 16, room_number: "13", notes: "Single Room", floor: "First Floor" },
+            { id: 17, room_number: "14", notes: "Double Room", floor: "First Floor" },
+            { id: 18, room_number: "15", notes: "Twin Room", floor: "First Floor" },
+            { id: 19, room_number: "16", notes: "Suite", floor: "First Floor" },
+            // Second Floor
+            { id: 20, room_number: "9", notes: "Single Room", floor: "Second Floor" },
+            { id: 21, room_number: "5b", notes: "Double Room", floor: "Second Floor" },
+            { id: 22, room_number: "21", notes: "Twin Room", floor: "Second Floor" },
+            { id: 23, room_number: "22", notes: "Family Room", floor: "Second Floor" },
+            { id: 24, room_number: "23", notes: "Single Room", floor: "Second Floor" },
+            { id: 25, room_number: "24", notes: "Double Room", floor: "Second Floor" },
+            { id: 26, room_number: "25", notes: "Twin Room", floor: "Second Floor" },
+            { id: 27, room_number: "26", notes: "Deluxe Room", floor: "Second Floor" },
+            // Third Floor
+            { id: 28, room_number: "31", notes: "Single Room", floor: "Third Floor" },
+            { id: 29, room_number: "32", notes: "Double Room", floor: "Third Floor" },
+            { id: 30, room_number: "33", notes: "Twin Room", floor: "Third Floor" },
+            { id: 31, room_number: "34", notes: "Family Room", floor: "Third Floor" },
+            { id: 32, room_number: "35", notes: "Single Room", floor: "Third Floor" },
+            { id: 33, room_number: "36", notes: "Suite", floor: "Third Floor" },
+            // Fourth Floor
+            { id: 34, room_number: "41", notes: "Single Room", floor: "Fourth Floor" },
+            { id: 35, room_number: "42", notes: "Double Room", floor: "Fourth Floor" },
+            { id: 36, room_number: "43", notes: "Twin Room", floor: "Fourth Floor" },
+            { id: 37, room_number: "44", notes: "Family Room", floor: "Fourth Floor" },
+            { id: 38, room_number: "45", notes: "Deluxe Room", floor: "Fourth Floor" },
+            { id: 39, room_number: "46", notes: "Presidential Suite", floor: "Fourth Floor" },
         ];
 
         const initialJobs = [
             {
                 id: 1,
-                room_id: 3,
+                room_id: 5,
                 title: "Shower Leak",
                 description: "Water dripping from shower head constantly. Needs immediate attention.",
                 photo: null,
@@ -911,7 +946,7 @@
             },
             {
                 id: 2,
-                room_id: 6,
+                room_id: 8,
                 title: "AC Not Working",
                 description: "Air conditioning unit not turning on. Room is getting warm.",
                 photo: null,
@@ -922,7 +957,7 @@
             },
             {
                 id: 3,
-                room_id: 4,
+                room_id: 14,
                 title: "Lamp Flickering",
                 description: "Bedside lamp flickering intermittently.",
                 photo: null,
@@ -933,7 +968,7 @@
             },
             {
                 id: 4,
-                room_id: 5,
+                room_id: 22,
                 title: "Loose Bathroom Tile",
                 description: "Tile near sink is coming loose and needs re-grouting.",
                 photo: null,
@@ -944,7 +979,7 @@
             },
             {
                 id: 5,
-                room_id: 7,
+                room_id: 28,
                 title: "Window Handle Loose",
                 description: "Window handle is wobbly and difficult to operate.",
                 photo: null,
@@ -955,7 +990,7 @@
             },
             {
                 id: 6,
-                room_id: 8,
+                room_id: 35,
                 title: "Curtain Rail Fixed",
                 description: "Repaired and reinforced curtain rail bracket.",
                 photo: null,
@@ -997,6 +1032,8 @@
             const [selectedRoom, setSelectedRoom] = useState(null);
             const [isEditing, setIsEditing] = useState(false);
             const [enlargedPhoto, setEnlargedPhoto] = useState(null);
+            const [managerCode, setManagerCode] = useState(() => storage.get('managerCode', '1234'));
+            const [showCodeSettings, setShowCodeSettings] = useState(false);
 
             useEffect(() => {
                 storage.set('rooms', rooms);
@@ -1006,9 +1043,43 @@
                 storage.set('jobs', jobs);
             }, [jobs]);
 
+            useEffect(() => {
+                storage.set('managerCode', managerCode);
+            }, [managerCode]);
+
             const selectRole = (role) => {
-                setUserRole(role);
-                setCurrentView('dashboard');
+                if (role === 'manager') {
+                    const enteredCode = prompt('Enter manager security code:');
+                    if (enteredCode === managerCode) {
+                        setUserRole(role);
+                        setCurrentView('dashboard');
+                    } else if (enteredCode !== null) {
+                        alert('Incorrect security code. Access denied.');
+                    }
+                } else {
+                    setUserRole(role);
+                    setCurrentView('dashboard');
+                }
+            };
+
+            const changeManagerCode = () => {
+                const currentCode = prompt('Enter current security code:');
+                if (currentCode === managerCode) {
+                    const newCode = prompt('Enter new security code (4-8 digits recommended):');
+                    if (newCode && newCode.length >= 4) {
+                        const confirmCode = prompt('Confirm new security code:');
+                        if (confirmCode === newCode) {
+                            setManagerCode(newCode);
+                            alert('Security code updated successfully!');
+                        } else {
+                            alert('Codes do not match. Security code not changed.');
+                        }
+                    } else if (newCode !== null) {
+                        alert('Security code must be at least 4 characters long.');
+                    }
+                } else if (currentCode !== null) {
+                    alert('Incorrect current code. Access denied.');
+                }
             };
 
             const logout = () => {
@@ -1153,6 +1224,7 @@
                             onViewCategory={viewCategory}
                             onAddJob={addNewJob}
                             onLogout={logout}
+                            onChangeCode={changeManagerCode}
                         />
                     )}
 
@@ -1261,7 +1333,7 @@
             );
         }
 
-        function Dashboard({ role, jobs, onViewCategory, onAddJob, onLogout }) {
+        function Dashboard({ role, jobs, onViewCategory, onAddJob, onLogout, onChangeCode }) {
             const urgentCount = jobs.filter(j => j.status === 'Urgent').length;
             const todoCount = jobs.filter(j => j.status === 'To Do').length;
             const doneCount = jobs.filter(j => j.status === 'Done').length;
@@ -1281,6 +1353,15 @@
                                 </button>
                             </div>
                         </div>
+                        {role === 'manager' && (
+                            <button 
+                                className="logout-button" 
+                                onClick={onChangeCode}
+                                style={{ marginTop: '0.5rem', width: '100%' }}
+                            >
+                                🔒 Change Security Code
+                            </button>
+                        )}
                     </div>
 
                     <div className="dashboard fade-in">
@@ -1420,7 +1501,7 @@
         }
 
         function FloorList({ category, jobs, rooms, onBack, onViewFloor }) {
-            const floors = ['Basement', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'];
+            const floors = ['Basement', 'Ground Floor', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'];
             
             const getFloorJobCount = (floor) => {
                 const floorRooms = rooms.filter(r => r.floor === floor);

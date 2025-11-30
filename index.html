@@ -1033,6 +1033,8 @@
                 setSelectedCategory(category);
                 if (category === 'Urgent') {
                     setCurrentView('urgent-list');
+                } else if (category === 'Other') {
+                    setCurrentView('other-list');
                 } else {
                     setCurrentView('floor-list');
                 }
@@ -1159,7 +1161,14 @@
                             jobs={getJobsWithRoomInfo(getJobsForCategory('Urgent'))}
                             onBack={goToDashboard}
                             onViewJob={viewJobDetail}
-                            onLogout={logout}
+                        />
+                    )}
+
+                    {currentView === 'other-list' && (
+                        <OtherJobsList
+                            jobs={getJobsWithRoomInfo(getJobsForCategory('Other'))}
+                            onBack={goToDashboard}
+                            onViewJob={viewJobDetail}
                         />
                     )}
 
@@ -1170,7 +1179,6 @@
                             rooms={rooms}
                             onBack={goToDashboard}
                             onViewFloor={viewFloorRooms}
-                            onLogout={logout}
                         />
                     )}
 
@@ -1182,7 +1190,6 @@
                             rooms={rooms}
                             onBack={() => setCurrentView('floor-list')}
                             onViewRoom={viewRoomJobs}
-                            onLogout={logout}
                         />
                     )}
 
@@ -1193,7 +1200,6 @@
                             jobs={jobs}
                             onBack={() => setCurrentView('room-list')}
                             onViewJob={viewJobDetail}
-                            onLogout={logout}
                         />
                     )}
 
@@ -1205,6 +1211,8 @@
                             onBack={() => {
                                 if (selectedCategory === 'Urgent') {
                                     setCurrentView('urgent-list');
+                                } else if (selectedCategory === 'Other') {
+                                    setCurrentView('other-list');
                                 } else {
                                     setCurrentView('job-list');
                                 }
@@ -1213,7 +1221,6 @@
                             onDeleteJob={deleteJob}
                             onEditJob={editJob}
                             onEnlargePhoto={setEnlargedPhoto}
-                            onLogout={logout}
                         />
                     )}
 
@@ -1222,7 +1229,6 @@
                             rooms={rooms}
                             onBack={goToDashboard}
                             onSubmit={createJob}
-                            onLogout={logout}
                         />
                     )}
 
@@ -1232,7 +1238,6 @@
                             rooms={rooms}
                             onBack={() => setCurrentView('job-detail')}
                             onSubmit={updateJobData}
-                            onLogout={logout}
                         />
                     )}
                 </div>
@@ -1335,19 +1340,14 @@
             );
         }
 
-        function UrgentJobsList({ jobs, onBack, onViewJob, onLogout }) {
+        function UrgentJobsList({ jobs, onBack, onViewJob }) {
             return (
                 <>
                     <div className="app-header">
                         <button className="back-button" onClick={onBack}>
                             ← Back
                         </button>
-                        <div className="header-content" style={{ marginBottom: 0 }}>
-                            <h1 className="app-title">Urgent Jobs</h1>
-                            <button className="logout-button" onClick={onLogout}>
-                                Logout
-                            </button>
-                        </div>
+                        <h1 className="app-title">Urgent Jobs</h1>
                     </div>
 
                     <div className="urgent-list fade-in">
@@ -1380,7 +1380,46 @@
             );
         }
 
-        function FloorList({ category, jobs, rooms, onBack, onViewFloor, onLogout }) {
+        function OtherJobsList({ jobs, onBack, onViewJob }) {
+            return (
+                <>
+                    <div className="app-header">
+                        <button className="back-button" onClick={onBack}>
+                            ← Back
+                        </button>
+                        <h1 className="app-title">Other Jobs</h1>
+                    </div>
+
+                    <div className="urgent-list fade-in">
+                        {jobs.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-icon">📭</div>
+                                <div className="empty-title">No Other Jobs</div>
+                                <div className="empty-message">No non-room maintenance tasks at the moment</div>
+                            </div>
+                        ) : (
+                            <div className="urgent-jobs">
+                                {jobs.map(job => (
+                                    <div key={job.id} className="urgent-job-card" onClick={() => onViewJob(job)} style={{ borderLeftColor: 'var(--accent-other)' }}>
+                                        <div className="job-header">
+                                            <div className="job-title">{job.title}</div>
+                                            <span className="status-badge other">Other</span>
+                                        </div>
+                                        <div className="detail-description">{job.description}</div>
+                                        <div className="job-meta">
+                                            <span>📅 {new Date(job.created_at).toLocaleDateString()}</span>
+                                            {job.photo && <span className="job-photo-indicator">📷 Photo</span>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </>
+            );
+        }
+
+        function FloorList({ category, jobs, rooms, onBack, onViewFloor }) {
             const floors = ['Basement', 'First Floor', 'Second Floor', 'Third Floor', 'Fourth Floor'];
             
             const getFloorJobCount = (floor) => {
@@ -1395,12 +1434,7 @@
                         <button className="back-button" onClick={onBack}>
                             ← Back
                         </button>
-                        <div className="header-content" style={{ marginBottom: 0 }}>
-                            <h1 className="app-title">{category} Jobs by Floor</h1>
-                            <button className="logout-button" onClick={onLogout}>
-                                Logout
-                            </button>
-                        </div>
+                        <h1 className="app-title">{category} Jobs by Floor</h1>
                     </div>
 
                     <div className="floor-list fade-in">
@@ -1422,7 +1456,7 @@
             );
         }
 
-        function RoomList({ floor, category, jobs, rooms, onBack, onViewRoom, onLogout }) {
+        function RoomList({ floor, category, jobs, rooms, onBack, onViewRoom }) {
             const floorRooms = rooms.filter(r => r.floor === floor);
             
             const getRoomJobCount = (roomId) => {
@@ -1435,12 +1469,7 @@
                         <button className="back-button" onClick={onBack}>
                             ← Back
                         </button>
-                        <div className="header-content" style={{ marginBottom: 0 }}>
-                            <h1 className="app-title">{floor}</h1>
-                            <button className="logout-button" onClick={onLogout}>
-                                Logout
-                            </button>
-                        </div>
+                        <h1 className="app-title">{floor}</h1>
                     </div>
 
                     <div className="floor-list fade-in">
@@ -1465,7 +1494,7 @@
             );
         }
 
-        function JobList({ room, category, jobs, onBack, onViewJob, onLogout }) {
+        function JobList({ room, category, jobs, onBack, onViewJob }) {
             const roomJobs = jobs.filter(j => j.room_id === room.id && j.status === category);
 
             return (
@@ -1474,12 +1503,7 @@
                         <button className="back-button" onClick={onBack}>
                             ← Back
                         </button>
-                        <div className="header-content" style={{ marginBottom: 0 }}>
-                            <h1 className="app-title">Room {room.room_number}</h1>
-                            <button className="logout-button" onClick={onLogout}>
-                                Logout
-                            </button>
-                        </div>
+                        <h1 className="app-title">Room {room.room_number}</h1>
                     </div>
 
                     <div className="floor-list fade-in">
@@ -1513,7 +1537,7 @@
             );
         }
 
-        function JobDetail({ job, room, role, onBack, onUpdateJob, onDeleteJob, onEditJob, onEnlargePhoto, onLogout }) {
+        function JobDetail({ job, room, role, onBack, onUpdateJob, onDeleteJob, onEditJob, onEnlargePhoto }) {
             const fileInputRef = useRef(null);
             const cameraInputRef = useRef(null);
 
@@ -1548,9 +1572,6 @@
                     <div className="app-header">
                         <button className="back-button" onClick={onBack}>
                             ← Back
-                        </button>
-                        <button className="logout-button" onClick={onLogout}>
-                            Logout
                         </button>
                     </div>
 
@@ -1647,7 +1668,7 @@
             );
         }
 
-        function AddJobForm({ rooms, onBack, onSubmit, onLogout }) {
+        function AddJobForm({ rooms, onBack, onSubmit }) {
             const [formData, setFormData] = useState({
                 room_id: '',
                 title: '',
@@ -1689,12 +1710,7 @@
                         <button className="back-button" onClick={onBack}>
                             ← Cancel
                         </button>
-                        <div className="header-content" style={{ marginBottom: 0 }}>
-                            <h1 className="app-title">Add New Job</h1>
-                            <button className="logout-button" onClick={onLogout}>
-                                Logout
-                            </button>
-                        </div>
+                        <h1 className="app-title">Add New Job</h1>
                     </div>
 
                     <div className="form-container fade-in">
@@ -1802,7 +1818,7 @@
             );
         }
 
-        function EditJobForm({ job, rooms, onBack, onSubmit, onLogout }) {
+        function EditJobForm({ job, rooms, onBack, onSubmit }) {
             const [formData, setFormData] = useState({
                 room_id: job.room_id || '',
                 title: job.title,
@@ -1844,12 +1860,7 @@
                         <button className="back-button" onClick={onBack}>
                             ← Cancel
                         </button>
-                        <div className="header-content" style={{ marginBottom: 0 }}>
-                            <h1 className="app-title">Edit Job</h1>
-                            <button className="logout-button" onClick={onLogout}>
-                                Logout
-                            </button>
-                        </div>
+                        <h1 className="app-title">Edit Job</h1>
                     </div>
 
                     <div className="form-container fade-in">

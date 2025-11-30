@@ -1020,6 +1020,16 @@
             }
         };
 
+        // Version control for data updates
+        const APP_VERSION = '2.0'; // Update this when rooms/data structure changes
+        const currentVersion = storage.get('appVersion', '1.0');
+        
+        // Reset rooms if version changed
+        if (currentVersion !== APP_VERSION) {
+            localStorage.removeItem('rooms');
+            storage.set('appVersion', APP_VERSION);
+        }
+
         // Main App Component
         function HotelMaintenanceApp() {
             const [currentView, setCurrentView] = useState('role-select');
@@ -1412,7 +1422,7 @@
                         </div>
                     </div>
 
-                    {role === 'manager' && (
+                    {(role === 'manager' || role === 'handyman') && (
                         <button className="add-job-button" onClick={onAddJob}>
                             +
                         </button>
@@ -1720,11 +1730,9 @@
                         </div>
 
                         <div className="detail-actions">
-                            {role === 'manager' && (
-                                <button className="edit-button" onClick={onEditJob}>
-                                    ✏️ Edit Job
-                                </button>
-                            )}
+                            <button className="edit-button" onClick={onEditJob}>
+                                ✏️ Edit Job
+                            </button>
 
                             {job.status !== 'Done' && (
                                 <button className="action-btn primary" onClick={handleMarkAsDone}>
